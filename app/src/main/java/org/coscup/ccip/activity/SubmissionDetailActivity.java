@@ -1,6 +1,9 @@
 package org.coscup.ccip.activity;
 
 import android.app.Activity;
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Paint;
@@ -17,6 +20,7 @@ import android.text.TextUtils;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.gson.internal.bind.util.ISO8601Utils;
 
@@ -105,6 +109,12 @@ public class SubmissionDetailActivity extends AppCompatActivity {
 
         room.setText(submission.getRoom());
         subject.setText(submission.getSubject());
+        subject.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                copy_to_clipboard((TextView) view);
+            }
+        });
 
         try {
             StringBuffer timeString = new StringBuffer();
@@ -159,7 +169,19 @@ public class SubmissionDetailActivity extends AppCompatActivity {
         if (submission.getSpeaker().getName().isEmpty()) spekaerInfoBlock.setVisibility(View.GONE);
 
         speakerInfo.setText(submission.getSpeaker().getBio());
+        speakerInfo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                copy_to_clipboard((TextView) view);
+            }
+        });
         programAbstract.setText(submission.getSummary());
+        programAbstract.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                copy_to_clipboard((TextView) view);
+            }
+        });
 
         fab = (FloatingActionButton) findViewById(R.id.fab);
         checkFabIcon();
@@ -212,5 +234,12 @@ public class SubmissionDetailActivity extends AppCompatActivity {
             submissions = Collections.singletonList(submission);
         }
         PreferenceUtil.saveStars(this, submissions);
+    }
+
+    private void copy_to_clipboard(TextView textView) {
+        ClipboardManager cManager = (ClipboardManager) mActivity.getSystemService(Context.CLIPBOARD_SERVICE);
+        ClipData cData = ClipData.newPlainText("text", textView.getText());
+        cManager.setPrimaryClip(cData);
+        Toast.makeText(mActivity, R.string.copy_to_clipboard, Toast.LENGTH_SHORT).show();
     }
 }
